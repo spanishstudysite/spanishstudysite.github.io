@@ -368,6 +368,8 @@ try{w.view("hub");var fh=w.document.getElementById("h1"),fs=w.document.getElemen
 check("Home has no \u201cYour units\u201d heading or filler line",fh.textContent===""&&fs.textContent===""&&w.getComputedStyle(fh).display=="none"&&w.getComputedStyle(fs).display=="none",fh.textContent+" | "+fs.textContent);
 w.cs={name:"Filler test",items:[["uno","one"],["dos","two"]]};w.view("cset");check("A set shows its name with no \u201cPick a study mode.\u201d line",fh.textContent=="Filler test"&&fs.textContent==="");
 var fu=w.document.querySelector("#sets [data-u]");if(fu){fu.click();check("A unit shows its name with no \u201cPick a set to study.\u201d line",fh.textContent!==""&&fs.textContent==="")}
+eq("The new-set button just says \u201c+ New set\u201d",w.document.getElementById("newset").textContent,"+ New set");
+if(w.SH_setST){w.SH_setST({n:"testteach",p:"x",t:1});w.view("hub");try{w.hubR()}catch(x){}var thc=w.document.querySelector(".th-card");check("The teacher home card has no \u201cTeacher workspace\u201d label or filler descriptions",!!thc&&!/Teacher workspace/.test(thc.textContent)&&!thc.querySelector("small")&&/Dashboard/.test(thc.textContent),thc?thc.textContent:"no card");w.SH_setST(null);w.view("hub");try{w.hubR()}catch(x){}}
 w.view("pret");check("Instructions that help still show (Pret\u00e9rito drill)",/preterite/.test(fs.textContent));
 w.cs=null;w.view("hub")}catch(e){check("Headings check ran",false,e.message)}
 suite("Screens open without errors");
