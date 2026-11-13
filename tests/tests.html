@@ -340,13 +340,38 @@ tq("ss").click();eq("Saving an edit replaces the terms",qs.items,[["uno","one"],
 w.CS.splice(w.CS.indexOf(qs),1);w.saveS();w.cs=null;w.view("hub")}catch(e){check("Making a terms set works",false,e.message)}
 suite("Practice and new-set screens are tidy");
 try{w.cs=null;w.createMenu();w.document.getElementById("k1").click();var cmE=w.document.getElementById("cm"),mpE=w.document.getElementById("mpick");
-eq("A new terms set says what to do, not \u201cWhat kind of set?\u201d",w.document.getElementById("sb").textContent,"Type or paste your terms and definitions.");
+eq("A new terms set doesn't keep saying \u201cWhat kind of set?\u201d",w.document.getElementById("sb").textContent,"");
 check("The study-mode picker sits below the terms, not above them",!!mpE&&!!cmE&&!!(cmE.compareDocumentPosition(mpE)&w.Node.DOCUMENT_POSITION_FOLLOWING));
 w.cs={name:"Nouns, verbs & adjectives",pic:1,items:w.SH_picSet("nva")};w.view("cset");w.picModes();
 var pmb=[].slice.call(w.document.querySelectorAll("#cmodes .chip")).filter(function(x){return /Type/.test(x.textContent)})[0];pmb&&pmb.click();
 var pim=w.document.querySelector("#cm img.pic");check("Practice pictures are short enough that the answer box fits on screen",!!pim&&parseFloat(w.getComputedStyle(pim).maxHeight)<=Math.min(260,w.innerHeight*.28)+1,pim?w.getComputedStyle(pim).maxHeight:"no picture");
 var cmc=w.document.querySelector("#cmodes .chip");check("Study-mode buttons are compact",!!cmc&&parseFloat(w.getComputedStyle(cmc).fontSize)<=13.5,cmc?w.getComputedStyle(cmc).fontSize:"none");
 w.cs=null;w.view("hub")}catch(e){check("Practice and new-set screens open",false,e.message)}
+suite("My work page is tidy");
+try{var mwR=[];for(var mi=0;mi<12;mi++)mwR.push({created_at:new Date(2026,10,13-mi).toISOString(),set_name:"Set "+mi,kind:mi%3?"practice":"assignment",score:15,total:20,seconds:300});
+var mwA=[{title:"Chapter 3 vocab",set_name:"Set 1",goal:"minutes",minutes:15,done_seconds:120},{title:"Old review",set_name:"Set 2",goal:"minutes",minutes:10,done_seconds:600,submitted:"2026-11-10T12:00:00Z"}];
+var mwD=w.document.createElement("div");mwD.innerHTML=w.SH_mwHTML(mwR,[{s:"Pretérito irregular",q:"yo · tener",a:"tuve",n:2,k:"x"}],mwA);w.SH_mwWire(mwD,mwA);
+var mwP=function(k){return mwD.querySelector('[data-mp="'+k+'"]')},mwT=function(k){return mwD.querySelector('[data-mt="'+k+'"]')};
+eq("It shows three quick numbers at the top",[].map.call(mwD.querySelectorAll(".mw-st b"),function(x){return x.textContent}),["1","1","1"]);
+eq("Tabs for assignments, completed work, weak spots and practice",[].map.call(mwD.querySelectorAll("[data-mt]"),function(x){return x.textContent}),["Assignments","Completed","Weak spots","Practice"]);
+check("No minutes-studied number",!/minutes studied/.test(mwD.querySelector(".mw-st").textContent));
+check("With work to do, the Assignments tab opens first",!mwP("a").hidden&&mwP("c").hidden&&mwP("w").hidden&&mwP("p").hidden&&/on/.test(mwT("a").className));
+check("Assignments to do have Continue and Turn in",/Continue/.test(mwP("a").textContent)&&!!mwP("a").querySelector("[data-mti]")&&!/Turned in/.test(mwP("a").textContent));
+check("Finished assignments are in the Completed tab",/Old review/.test(mwP("c").textContent)&&/Turned in/.test(mwP("c").textContent)&&!/Chapter 3/.test(mwP("c").textContent));
+mwT("w").click();check("Tapping a tab shows only that tab",mwP("a").hidden&&!mwP("w").hidden&&/on/.test(mwT("w").className)&&!/on/.test(mwT("a").className));
+mwT("p").click();eq("Practice shows the 8 newest rounds first",[].filter.call(mwD.querySelectorAll(".mw-t tr"),function(r){return!r.hidden&&r.querySelector("td")}).length,8);
+mwD.querySelector("#mwm").click();eq("Show all shows the rest",[].filter.call(mwD.querySelectorAll(".mw-t tr"),function(r){return!r.hidden&&r.querySelector("td")}).length,12);
+check("Scores show as a percent and assignments get a small tag",/75%/.test(mwD.querySelector(".mw-t").textContent)&&mwD.querySelectorAll(".mw-t .mw-tag").length===4);
+var mwE=w.document.createElement("div");mwE.innerHTML=w.SH_mwHTML([],[],[]);check("With nothing to do it opens Practice and says what to do",!mwE.querySelector('[data-mp="p"]').hidden&&/Nothing yet/.test(mwE.textContent)&&/None right now/.test(mwE.textContent)&&/No assignments/.test(mwE.textContent)&&/Nothing completed/.test(mwE.textContent))}catch(e){check("My work page builds",false,e.message)}
+suite("No filler headings");
+try{w.view("hub");var fh=w.document.getElementById("h1"),fs=w.document.getElementById("sb");
+check("Home has no \u201cYour units\u201d heading or filler line",fh.textContent===""&&fs.textContent===""&&w.getComputedStyle(fh).display=="none"&&w.getComputedStyle(fs).display=="none",fh.textContent+" | "+fs.textContent);
+w.cs={name:"Filler test",items:[["uno","one"],["dos","two"]]};w.view("cset");check("A set shows its name with no \u201cPick a study mode.\u201d line",fh.textContent=="Filler test"&&fs.textContent==="");
+var fu=w.document.querySelector("#sets [data-u]");if(fu){fu.click();check("A unit shows its name with no \u201cPick a set to study.\u201d line",fh.textContent!==""&&fs.textContent==="")}
+eq("The new-set button just says \u201c+ New set\u201d",w.document.getElementById("newset").textContent,"+ New set");
+if(w.SH_setST){w.SH_setST({n:"testteach",p:"x",t:1});w.view("hub");try{w.hubR()}catch(x){}var thc=w.document.querySelector(".th-card");check("The teacher home card has no \u201cTeacher workspace\u201d label or filler descriptions",!!thc&&!/Teacher workspace/.test(thc.textContent)&&!thc.querySelector("small")&&/Dashboard/.test(thc.textContent),thc?thc.textContent:"no card");w.SH_setST(null);w.view("hub");try{w.hubR()}catch(x){}}
+w.view("pret");check("Instructions that help still show (Pret\u00e9rito drill)",/preterite/.test(fs.textContent));
+w.cs=null;w.view("hub")}catch(e){check("Headings check ran",false,e.message)}
 suite("Screens open without errors");
 var n0=w.__errs.length;try{w.view("hub");check("Library shows units",w.document.querySelectorAll("#sets [data-u]").length>0,"no unit cards");
 var c=w.document.querySelector("#sets [data-u]");c.click();check("A unit opens",!w.document.getElementById("unit").hidden);
