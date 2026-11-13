@@ -340,7 +340,7 @@ tq("ss").click();eq("Saving an edit replaces the terms",qs.items,[["uno","one"],
 w.CS.splice(w.CS.indexOf(qs),1);w.saveS();w.cs=null;w.view("hub")}catch(e){check("Making a terms set works",false,e.message)}
 suite("Practice and new-set screens are tidy");
 try{w.cs=null;w.createMenu();w.document.getElementById("k1").click();var cmE=w.document.getElementById("cm"),mpE=w.document.getElementById("mpick");
-eq("A new terms set says what to do, not \u201cWhat kind of set?\u201d",w.document.getElementById("sb").textContent,"Type or paste your terms and definitions.");
+eq("A new terms set doesn't keep saying \u201cWhat kind of set?\u201d",w.document.getElementById("sb").textContent,"");
 check("The study-mode picker sits below the terms, not above them",!!mpE&&!!cmE&&!!(cmE.compareDocumentPosition(mpE)&w.Node.DOCUMENT_POSITION_FOLLOWING));
 w.cs={name:"Nouns, verbs & adjectives",pic:1,items:w.SH_picSet("nva")};w.view("cset");w.picModes();
 var pmb=[].slice.call(w.document.querySelectorAll("#cmodes .chip")).filter(function(x){return /Type/.test(x.textContent)})[0];pmb&&pmb.click();
@@ -361,6 +361,13 @@ mwT("p").click();eq("Practice shows the 8 newest rounds first",[].filter.call(mw
 mwD.querySelector("#mwm").click();eq("Show all shows the rest",[].filter.call(mwD.querySelectorAll(".mw-t tr"),function(r){return!r.hidden&&r.querySelector("td")}).length,12);
 check("Scores show as a percent and assignments get a small tag",/75%/.test(mwD.querySelector(".mw-t").textContent)&&mwD.querySelectorAll(".mw-t .mw-tag").length===4);
 var mwE=w.document.createElement("div");mwE.innerHTML=w.SH_mwHTML([],[],[]);check("With nothing to do it opens Practice and says what to do",!mwE.querySelector('[data-mp="p"]').hidden&&/Nothing yet/.test(mwE.textContent)&&/None right now/.test(mwE.textContent)&&/No assignments/.test(mwE.textContent))}catch(e){check("My work page builds",false,e.message)}
+suite("No filler headings");
+try{w.view("hub");var fh=w.document.getElementById("h1"),fs=w.document.getElementById("sb");
+check("Home has no \u201cYour units\u201d heading or filler line",fh.textContent===""&&fs.textContent===""&&w.getComputedStyle(fh).display=="none"&&w.getComputedStyle(fs).display=="none",fh.textContent+" | "+fs.textContent);
+w.cs={name:"Filler test",items:[["uno","one"],["dos","two"]]};w.view("cset");check("A set shows its name with no \u201cPick a study mode.\u201d line",fh.textContent=="Filler test"&&fs.textContent==="");
+var fu=w.document.querySelector("#sets [data-u]");if(fu){fu.click();check("A unit shows its name with no \u201cPick a set to study.\u201d line",fh.textContent!==""&&fs.textContent==="")}
+w.view("pret");check("Instructions that help still show (Pret\u00e9rito drill)",/preterite/.test(fs.textContent));
+w.cs=null;w.view("hub")}catch(e){check("Headings check ran",false,e.message)}
 suite("Screens open without errors");
 var n0=w.__errs.length;try{w.view("hub");check("Library shows units",w.document.querySelectorAll("#sets [data-u]").length>0,"no unit cards");
 var c=w.document.querySelector("#sets [data-u]");c.click();check("A unit opens",!w.document.getElementById("unit").hidden);
