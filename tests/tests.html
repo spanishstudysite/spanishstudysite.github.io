@@ -135,9 +135,9 @@ suite("Loro parrot logo");
 check("Header shows the parrot logo, not the old chat bubbles",!!hl&&/lp/.test(hl.className)&&!!hl.querySelector("svg")&&!/M14 9a2 2/.test(hl.innerHTML));
 check("Parrot logo has a label for screen readers",!!hl&&hl.getAttribute("aria-label")=="Loro the parrot");
 check("Parrot has its yellow beak and gold sparkles",!!hl&&/ffd36b/i.test(hl.innerHTML)&&(hl.innerHTML.match(/<path d="M\d+ \d+ l/g)||[]).length>=3);
-check("Header parrot is sized for the top bar",!!hl&&Math.round(hl.getBoundingClientRect().width)==40);
+check("Header parrot is sized for the slim top bar",!!hl&&Math.round(hl.getBoundingClientRect().width)==32);
 var sh=w.SH_gShow,hid=w.SH_gHide;if(sh){sh();var gl=w.document.querySelector(".hero .logo");
-check("Login screen shows the big parrot above ¡Hola!",!!gl&&/lp/.test(gl.className)&&Math.round(gl.getBoundingClientRect().width)==88);
+check("Login screen shows the big parrot above ¡Hola!",!!gl&&/lp/.test(gl.className)&&Math.round(gl.getBoundingClientRect().width)==64);
 check("Login screen's big title is Loro, with ¡Hola! under it",!!gl&&(gl.parentNode.querySelector("h2")||{}).textContent=="Loro"&&/^¡Hola!/.test((gl.parentNode.querySelector("p")||{}).textContent||""));
 var g=w.document.getElementById("gate"),ob=g.style.bottom,oh=g.style.height;g.style.bottom="auto";g.style.height="300px";g.scrollTop=0;
 check("On a short screen the parrot isn't cut off at the top of the login screen",!!gl&&gl.getBoundingClientRect().top>=g.getBoundingClientRect().top,Math.round(gl.getBoundingClientRect().top-g.getBoundingClientRect().top)+"px");
@@ -363,13 +363,47 @@ mwT("p").click();eq("Practice shows the 8 newest rounds first",[].filter.call(mw
 mwD.querySelector("#mwm").click();eq("Show all shows the rest",[].filter.call(mwD.querySelectorAll(".mw-t tr"),function(r){return!r.hidden&&r.querySelector("td")}).length,12);
 check("Scores show as a percent and assignments get a small tag",/75%/.test(mwD.querySelector(".mw-t").textContent)&&mwD.querySelectorAll(".mw-t .mw-tag").length===4);
 var mwE=w.document.createElement("div");mwE.innerHTML=w.SH_mwHTML([],[],[]);check("With nothing to do it opens Practice and says what to do",!mwE.querySelector('[data-mp="p"]').hidden&&/Nothing yet/.test(mwE.textContent)&&/None right now/.test(mwE.textContent)&&/No assignments/.test(mwE.textContent)&&/Nothing completed/.test(mwE.textContent))}catch(e){check("My work page builds",false,e.message)}
+suite("Pro look: top nav and tidy home");
+try{var d=w.document,q=function(x){return d.querySelector(x)};
+if(!w.SH_setDATA||!w.SH_navR){check("Pro look hooks exist",false,"needs SH_setDATA and SH_navR")}else{
+var pa=[{id:1,title:"Unit 3 warm-up",set_name:"Nouns",goal:"minutes",minutes:10,done_seconds:300,due:"2026-11-20"},{id:2,title:"Preterite check",set_name:"Pretérito",goal:"terms",minutes:20,answered:5,right:5},{id:3,title:"Old one",set_name:"Nouns",goal:"minutes",minutes:5,done_seconds:600}];
+w.SH_setST({n:"koalaab3",p:"4821"});w.SH_setDATA({classes:[{id:1,name:"Spanish 2 · Period 3"}],assignments:pa,results:[],weak:[]});w.view("hub");w.SH_drawAsg();
+var nb=[].map.call(d.querySelectorAll("#navl button"),function(b){return b.textContent});
+eq("Students see Home, My work and Answer key in the top bar",nb.join("|"),"Home|My work|Answer key");
+check("Home is underlined in the top bar on the home screen",!!q('#navl [data-nv="home"].on'));
+var hh=q("#asg .hh h2");eq("The greeting is a big heading with the animal's name",hh?hh.textContent:"",'¡Hola, Koala!');
+check("The class name sits under the greeting",/Spanish 2 · Period 3/.test((q("#asg .hh p")||{}).textContent||""));
+check("Loro talks next to the greeting",!!q("#asg .hh .loro-say"));
+eq("The assignments header counts what's left to do",(q("#asg .ach-n")||{}).textContent,"2 to do");
+eq("Each open assignment gets its own row",d.querySelectorAll("#asg .ar [data-a]").length,2);
+var bars=d.querySelectorAll("#asg .ar-b i");eq("Progress bars show how far along each one is",[].map.call(bars,function(i){return i.style.width}).join(","),"50%,25%");
+check("Start or Continue is the filled main button",/\bgo\b/.test((q("#asg [data-a]")||{}).className||"")&&q("#asg [data-a]").textContent=="Continue");
+eq("Finished work moves behind a View completed link",(q("#afin")||{}).textContent,"View completed (1)");
+check("Old My work chip is gone from the home card",!q("#mwb2"));
+eq("Units get a Practice by unit label",(q("#asg .hsec")||{}).textContent,"Practice by unit");
+eq("A timed goal has no progress bar",w.SH_gpct({goal:"timed",minutes:5}),null);
+eq("Terms progress tops out at 100%",w.SH_gpct({goal:"terms",minutes:10,answered:40}),100);
+w.SH_setDATA({classes:[{id:1,name:"S2"}],assignments:[],results:[],weak:[]});w.SH_drawAsg();
+check("With no assignments the card says so in plain words",/No assignments right now/.test((q("#asg .card")||{}).textContent||""));
+w.SH_navGo("key");check("Answer key in the top bar opens the key and underlines it",!w.document.getElementById("key").hidden&&!!q('#navl [data-nv="key"].on'));
+w.document.getElementById("key").innerHTML='<div class="mw-st"></div>';w.SH_navR();check("On My work, My work is underlined",!!q('#navl [data-nv="mw"].on'));
+w.SH_navGo("home");check("Home in the top bar goes back home",!w.document.getElementById("hub").hidden&&!!q('#navl [data-nv="home"].on'));
+w.SH_setST({n:"testteach",p:"x",t:1});w.view("hub");try{w.hubR()}catch(x){}
+nb=[].map.call(d.querySelectorAll("#navl button"),function(b){return b.textContent});
+eq("Teachers see Home and Dashboard in the top bar",nb.join("|"),"Home|Dashboard");
+check("Teacher home has Loro beside the greeting",!!q(".th-card .th-l svg"));
+eq("Teacher buttons are New unit, New set, Answer key (Dashboard only in the top bar)",[].map.call(d.querySelectorAll(".th-acts .th-a"),function(b){return b.textContent.replace(/[^A-Za-z ]/g,"").trim()}).join("|"),"New unit|New set|Answer key");
+var tb=q(".th-acts .th-a");check("Teacher buttons are big enough to tap easily",!!tb&&tb.getBoundingClientRect().height>=48,tb?tb.getBoundingClientRect().height:"none");
+w.SH_setST(null);w.SH_setDATA(null);w.view("hub");try{w.hubR()}catch(x){}
+eq("Logged out, the top bar has no links",d.querySelectorAll("#navl button").length,0)}
+}catch(e){check("Pro look checks ran",false,e.message)}
 suite("No filler headings");
 try{w.view("hub");var fh=w.document.getElementById("h1"),fs=w.document.getElementById("sb");
 check("Home has no \u201cYour units\u201d heading or filler line",fh.textContent===""&&fs.textContent===""&&w.getComputedStyle(fh).display=="none"&&w.getComputedStyle(fs).display=="none",fh.textContent+" | "+fs.textContent);
 w.cs={name:"Filler test",items:[["uno","one"],["dos","two"]]};w.view("cset");check("A set shows its name with no \u201cPick a study mode.\u201d line",fh.textContent=="Filler test"&&fs.textContent==="");
 var fu=w.document.querySelector("#sets [data-u]");if(fu){fu.click();check("A unit shows its name with no \u201cPick a set to study.\u201d line",fh.textContent!==""&&fs.textContent==="")}
 eq("The new-set button just says \u201c+ New set\u201d",w.document.getElementById("newset").textContent,"+ New set");
-if(w.SH_setST){w.SH_setST({n:"testteach",p:"x",t:1});w.view("hub");try{w.hubR()}catch(x){}var thc=w.document.querySelector(".th-card");check("The teacher home card has no \u201cTeacher workspace\u201d label or filler descriptions",!!thc&&!/Teacher workspace/.test(thc.textContent)&&!thc.querySelector("small")&&/Dashboard/.test(thc.textContent),thc?thc.textContent:"no card");w.SH_setST(null);w.view("hub");try{w.hubR()}catch(x){}}
+if(w.SH_setST){w.SH_setST({n:"testteach",p:"x",t:1});w.view("hub");try{w.hubR()}catch(x){}var thc=w.document.querySelector(".th-card");check("The teacher home card has no \u201cTeacher workspace\u201d label or filler descriptions",!!thc&&!/Teacher workspace/.test(thc.textContent)&&!thc.querySelector("small")&&/Answer key/.test(thc.textContent),thc?thc.textContent:"no card");w.SH_setST(null);w.view("hub");try{w.hubR()}catch(x){}}
 w.view("pret");check("Instructions that help still show (Pret\u00e9rito drill)",/preterite/.test(fs.textContent));
 w.cs=null;w.view("hub")}catch(e){check("Headings check ran",false,e.message)}
 suite("Screens open without errors");
