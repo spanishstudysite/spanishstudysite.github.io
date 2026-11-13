@@ -406,6 +406,22 @@ eq("The new-set button just says \u201c+ New set\u201d",w.document.getElementByI
 if(w.SH_setST){w.SH_setST({n:"testteach",p:"x",t:1});w.view("hub");try{w.hubR()}catch(x){}var thc=w.document.querySelector(".th-card");check("The teacher home card has no \u201cTeacher workspace\u201d label or filler descriptions",!!thc&&!/Teacher workspace/.test(thc.textContent)&&!thc.querySelector("small")&&/Answer key/.test(thc.textContent),thc?thc.textContent:"no card");w.SH_setST(null);w.view("hub");try{w.hubR()}catch(x){}}
 w.view("pret");check("Instructions that help still show (Pret\u00e9rito drill)",/preterite/.test(fs.textContent));
 w.cs=null;w.view("hub")}catch(e){check("Headings check ran",false,e.message)}
+function wkRun(){suite("Weak spots is a normal dashboard tab");var wkS=cur;
+/* an earlier log-out check reloads the site a moment later; wait until the page has settled */
+return new Promise(function(ok){var d0=w.document,st=0,n=0,iv=setInterval(function(){n++;if(w.document!==d0){d0=w.document;st=0}else st++;if((st>=5&&w.SH_teacherUI&&w.document.readyState=="complete")||n>40){clearInterval(iv);setTimeout(ok,300)}},200)}).then(function(){cur=wkS;return new Promise(function(done){var of=w.fetch,fin=function(){w.fetch=of;try{w.SH_setST(null);w.view("hub");w.hubR()}catch(x){}done()};
+try{if(!w.SH_teacherUI){check("Dashboard hook exists",false,"needs SH_teacherUI");return done()}
+w.fetch=function(u){var b=/teacher_report/.test(String(u))?{classes:[{id:1,name:"Spanish 2",tag:"ab3",code:"ABC123",members:[{name:"koalaab3"}]}],students:[{name:"koalaab3",role:"student",classes:[1],weak:{}}],assignments:[],recent:[]}:null;return Promise.resolve(new w.Response(JSON.stringify(b),{status:200}))};
+w.SH_setST({n:"testteach",p:"x",t:1});w.SH_teacherUI(function(){});
+setTimeout(function(){cur=wkS;try{var d=w.document,tb=d.querySelector('.tp-tab[data-t="wk"]');
+check("The dashboard has a Weak spots tab",!!tb);if(tb)tb.click();
+var pn=d.querySelector('.tp-pane[data-p="wk"]');
+check("Weak spots opens inside the dashboard like the other tabs",!!pn&&!pn.hidden&&!!d.querySelector("#key .tp-tabs"),pn?"pane hidden":"no pane");
+check("The Weak spots tab is underlined",!!d.querySelector('.tp-tab[data-t="wk"].on'));
+check("Other tabs' panes are hidden while on Weak spots",!d.querySelector('.tp-pane[data-p="as"]')||d.querySelector('.tp-pane[data-p="as"]').hidden);
+check("The class picker is right there on the tab",!!d.querySelector('.tp-pane[data-p="wk"] #twc'));
+check("No separate page with a back button",!d.getElementById("twback")&&!d.getElementById("twopen"));
+var gt=d.querySelector('.tp-tab[data-t="gb"]');if(gt)gt.click();check("Switching back to another tab hides Weak spots",!!pn&&pn.hidden);
+w._tTab="as"}catch(e){check("Weak spots tab checks ran",false,e.message)}fin()},400)}catch(e){check("Weak spots tab checks ran",false,e.message);fin()}});})}
 suite("Screens open without errors");
 var n0=w.__errs.length;try{w.view("hub");check("Library shows units",w.document.querySelectorAll("#sets [data-u]").length>0,"no unit cards");
 var c=w.document.querySelector("#sets [data-u]");c.click();check("A unit opens",!w.document.getElementById("unit").hidden);
@@ -414,7 +430,7 @@ w.view("hub")}catch(e){check("Navigation threw an error",false,e.message)}
 check("No errors while clicking around",w.__errs.length===n0,w.__errs.slice(n0).join(" | "));
 ICW.then(function(x){cur=icS;if(x.err)check("App manifest can be read",false,x.err);else{check("Manifest names the app Loro",x.m.name=="Loro"&&x.m.short_name=="Loro",x.m.name);
 check("Manifest lists 192px and 512px icons",x.src.indexOf("192x192")>=0&&x.src.indexOf("512x512")>=0,x.src.join(", "));
-x.sz.forEach(function(r){check(r[0]+" loads at the right size",r[1]==({"apple-touch-icon.png":180,"icon-192.png":192,"icon-512.png":512})[r[0]],r[1]?r[1]+"px":"missing")})}draw()})}
+x.sz.forEach(function(r){check(r[0]+" loads at the right size",r[1]==({"apple-touch-icon.png":180,"icon-192.png":192,"icon-512.png":512})[r[0]],r[1]?r[1]+"px":"missing")})}return wkRun()}).then(draw)}
 function go(){document.getElementById("st").textContent="Running…";document.getElementById("st").className="big";document.getElementById("out").innerHTML="";[].forEach.call(document.querySelectorAll("iframe"),function(f){f.remove()});
 load().then(run).catch(function(e){R=[];suite("Setup");check("Test page could start",false,e.message);draw()})}
 document.getElementById("re").onclick=go;go();
