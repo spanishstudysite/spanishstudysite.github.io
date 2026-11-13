@@ -347,6 +347,15 @@ var pmb=[].slice.call(w.document.querySelectorAll("#cmodes .chip")).filter(funct
 var pim=w.document.querySelector("#cm img.pic");check("Practice pictures are short enough that the answer box fits on screen",!!pim&&parseFloat(w.getComputedStyle(pim).maxHeight)<=Math.min(260,w.innerHeight*.28)+1,pim?w.getComputedStyle(pim).maxHeight:"no picture");
 var cmc=w.document.querySelector("#cmodes .chip");check("Study-mode buttons are compact",!!cmc&&parseFloat(w.getComputedStyle(cmc).fontSize)<=13.5,cmc?w.getComputedStyle(cmc).fontSize:"none");
 w.cs=null;w.view("hub")}catch(e){check("Practice and new-set screens open",false,e.message)}
+suite("My work page is tidy");
+try{var mwR=[];for(var mi=0;mi<12;mi++)mwR.push({created_at:new Date(2026,10,13-mi).toISOString(),set_name:"Set "+mi,kind:mi%3?"practice":"assignment",score:15,total:20,seconds:300});
+var mwD=w.document.createElement("div");mwD.innerHTML=w.SH_mwHTML(mwR,[{s:"Pretérito irregular",q:"yo · tener",a:"tuve",n:2,k:"x"}]);
+eq("It shows three quick numbers at the top",[].map.call(mwD.querySelectorAll(".mw-st b"),function(x){return x.textContent}),["60","12","1"]);
+var mwH=[].map.call(mwD.querySelectorAll("h3"),function(x){return x.textContent});check("Weak spots come before recent practice",mwH.length==2&&/Weak spots/.test(mwH[0])&&/Recent practice/.test(mwH[1]),mwH.join(" | "));
+eq("Only the 8 newest rounds show at first",[].filter.call(mwD.querySelectorAll(".mw-t tr"),function(r){return!r.hidden&&r.querySelector("td")}).length,8);
+check("A button shows the rest",!!mwD.querySelector("#mwm")&&/12/.test(mwD.querySelector("#mwm").textContent));
+check("Scores show as a percent and assignments get a small tag",/75%/.test(mwD.querySelector(".mw-t").textContent)&&mwD.querySelectorAll(".mw-t .mw-tag").length===4);
+var mwE=w.document.createElement("div");mwE.innerHTML=w.SH_mwHTML([],[]);check("An empty page says what to do",/Nothing yet/.test(mwE.textContent)&&/None right now/.test(mwE.textContent))}catch(e){check("My work page builds",false,e.message)}
 suite("Screens open without errors");
 var n0=w.__errs.length;try{w.view("hub");check("Library shows units",w.document.querySelectorAll("#sets [data-u]").length>0,"no unit cards");
 var c=w.document.querySelector("#sets [data-u]");c.click();check("A unit opens",!w.document.getElementById("unit").hidden);
