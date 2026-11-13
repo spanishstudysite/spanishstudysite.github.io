@@ -138,7 +138,7 @@ check("Parrot has its yellow beak and gold sparkles",!!hl&&/ffd36b/i.test(hl.inn
 check("Header parrot is sized for the top bar",!!hl&&Math.round(hl.getBoundingClientRect().width)==40);
 var sh=w.SH_gShow,hid=w.SH_gHide;if(sh){sh();var gl=w.document.querySelector(".hero .logo");
 check("Login screen shows the big parrot above ¡Hola!",!!gl&&/lp/.test(gl.className)&&Math.round(gl.getBoundingClientRect().width)==88);
-check("Login screen says Loro under ¡Hola!",!!gl&&(gl.parentNode.querySelector("p")||{}).textContent=="Loro");
+check("Login screen's big title is Loro, with ¡Hola! under it",!!gl&&(gl.parentNode.querySelector("h2")||{}).textContent=="Loro"&&/^¡Hola!/.test((gl.parentNode.querySelector("p")||{}).textContent||""));
 var g=w.document.getElementById("gate"),ob=g.style.bottom,oh=g.style.height;g.style.bottom="auto";g.style.height="300px";g.scrollTop=0;
 check("On a short screen the parrot isn't cut off at the top of the login screen",!!gl&&gl.getBoundingClientRect().top>=g.getBoundingClientRect().top,Math.round(gl.getBoundingClientRect().top-g.getBoundingClientRect().top)+"px");
 g.style.bottom=ob;g.style.height=oh;if(hid)hid()}
@@ -338,6 +338,15 @@ tq("sd").value="uno - one\ndos - two\ntres - three";tq("sd").oninput();eq("Paste
 tq("emT").click();eq("Switching back turns the pasted list into rows",tr().filter(function(r){return r.querySelector(".et").value}).map(function(r){return r.querySelector(".et").value}),["uno","dos","tres"]);
 tq("ss").click();eq("Saving an edit replaces the terms",qs.items,[["uno","one"],["dos","two"],["tres","three"]]);
 w.CS.splice(w.CS.indexOf(qs),1);w.saveS();w.cs=null;w.view("hub")}catch(e){check("Making a terms set works",false,e.message)}
+suite("Practice and new-set screens are tidy");
+try{w.cs=null;w.createMenu();w.document.getElementById("k1").click();var cmE=w.document.getElementById("cm"),mpE=w.document.getElementById("mpick");
+eq("A new terms set says what to do, not \u201cWhat kind of set?\u201d",w.document.getElementById("sb").textContent,"Type or paste your terms and definitions.");
+check("The study-mode picker sits below the terms, not above them",!!mpE&&!!cmE&&!!(cmE.compareDocumentPosition(mpE)&w.Node.DOCUMENT_POSITION_FOLLOWING));
+w.cs={name:"Nouns, verbs & adjectives",pic:1,items:w.SH_picSet("nva")};w.view("cset");w.picModes();
+var pmb=[].slice.call(w.document.querySelectorAll("#cmodes .chip")).filter(function(x){return /Type/.test(x.textContent)})[0];pmb&&pmb.click();
+var pim=w.document.querySelector("#cm img.pic");check("Practice pictures are short enough that the answer box fits on screen",!!pim&&parseFloat(w.getComputedStyle(pim).maxHeight)<=Math.min(260,w.innerHeight*.28)+1,pim?w.getComputedStyle(pim).maxHeight:"no picture");
+var cmc=w.document.querySelector("#cmodes .chip");check("Study-mode buttons are compact",!!cmc&&parseFloat(w.getComputedStyle(cmc).fontSize)<=13.5,cmc?w.getComputedStyle(cmc).fontSize:"none");
+w.cs=null;w.view("hub")}catch(e){check("Practice and new-set screens open",false,e.message)}
 suite("Screens open without errors");
 var n0=w.__errs.length;try{w.view("hub");check("Library shows units",w.document.querySelectorAll("#sets [data-u]").length>0,"no unit cards");
 var c=w.document.querySelector("#sets [data-u]");c.click();check("A unit opens",!w.document.getElementById("unit").hidden);
