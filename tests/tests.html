@@ -352,15 +352,17 @@ try{var mwR=[];for(var mi=0;mi<12;mi++)mwR.push({created_at:new Date(2026,10,13-
 var mwA=[{title:"Chapter 3 vocab",set_name:"Set 1",goal:"minutes",minutes:15,done_seconds:120},{title:"Old review",set_name:"Set 2",goal:"minutes",minutes:10,done_seconds:600,submitted:"2026-11-10T12:00:00Z"}];
 var mwD=w.document.createElement("div");mwD.innerHTML=w.SH_mwHTML(mwR,[{s:"Pretérito irregular",q:"yo · tener",a:"tuve",n:2,k:"x"}],mwA);w.SH_mwWire(mwD,mwA);
 var mwP=function(k){return mwD.querySelector('[data-mp="'+k+'"]')},mwT=function(k){return mwD.querySelector('[data-mt="'+k+'"]')};
-eq("It shows three quick numbers at the top",[].map.call(mwD.querySelectorAll(".mw-st b"),function(x){return x.textContent}),["60","1","1"]);
-eq("Tabs for assignments, weak spots and practice",[].map.call(mwD.querySelectorAll("[data-mt]"),function(x){return x.textContent}),["Assignments","Weak spots","Practice"]);
-check("With work to do, the Assignments tab opens first",!mwP("a").hidden&&mwP("w").hidden&&mwP("p").hidden&&/on/.test(mwT("a").className));
-check("Assignments to do have Continue and Turn in, finished ones are listed below",/Continue/.test(mwP("a").textContent)&&!!mwP("a").querySelector("[data-mti]")&&/Finished/.test(mwP("a").textContent)&&/Turned in/.test(mwP("a").textContent));
+eq("It shows three quick numbers at the top",[].map.call(mwD.querySelectorAll(".mw-st b"),function(x){return x.textContent}),["1","1","1"]);
+eq("Tabs for assignments, completed work, weak spots and practice",[].map.call(mwD.querySelectorAll("[data-mt]"),function(x){return x.textContent}),["Assignments","Completed","Weak spots","Practice"]);
+check("No minutes-studied number",!/minutes studied/.test(mwD.querySelector(".mw-st").textContent));
+check("With work to do, the Assignments tab opens first",!mwP("a").hidden&&mwP("c").hidden&&mwP("w").hidden&&mwP("p").hidden&&/on/.test(mwT("a").className));
+check("Assignments to do have Continue and Turn in",/Continue/.test(mwP("a").textContent)&&!!mwP("a").querySelector("[data-mti]")&&!/Turned in/.test(mwP("a").textContent));
+check("Finished assignments are in the Completed tab",/Old review/.test(mwP("c").textContent)&&/Turned in/.test(mwP("c").textContent)&&!/Chapter 3/.test(mwP("c").textContent));
 mwT("w").click();check("Tapping a tab shows only that tab",mwP("a").hidden&&!mwP("w").hidden&&/on/.test(mwT("w").className)&&!/on/.test(mwT("a").className));
 mwT("p").click();eq("Practice shows the 8 newest rounds first",[].filter.call(mwD.querySelectorAll(".mw-t tr"),function(r){return!r.hidden&&r.querySelector("td")}).length,8);
 mwD.querySelector("#mwm").click();eq("Show all shows the rest",[].filter.call(mwD.querySelectorAll(".mw-t tr"),function(r){return!r.hidden&&r.querySelector("td")}).length,12);
 check("Scores show as a percent and assignments get a small tag",/75%/.test(mwD.querySelector(".mw-t").textContent)&&mwD.querySelectorAll(".mw-t .mw-tag").length===4);
-var mwE=w.document.createElement("div");mwE.innerHTML=w.SH_mwHTML([],[],[]);check("With nothing to do it opens Practice and says what to do",!mwE.querySelector('[data-mp="p"]').hidden&&/Nothing yet/.test(mwE.textContent)&&/None right now/.test(mwE.textContent)&&/No assignments/.test(mwE.textContent))}catch(e){check("My work page builds",false,e.message)}
+var mwE=w.document.createElement("div");mwE.innerHTML=w.SH_mwHTML([],[],[]);check("With nothing to do it opens Practice and says what to do",!mwE.querySelector('[data-mp="p"]').hidden&&/Nothing yet/.test(mwE.textContent)&&/None right now/.test(mwE.textContent)&&/No assignments/.test(mwE.textContent)&&/Nothing completed/.test(mwE.textContent))}catch(e){check("My work page builds",false,e.message)}
 suite("No filler headings");
 try{w.view("hub");var fh=w.document.getElementById("h1"),fs=w.document.getElementById("sb");
 check("Home has no \u201cYour units\u201d heading or filler line",fh.textContent===""&&fs.textContent===""&&w.getComputedStyle(fh).display=="none"&&w.getComputedStyle(fs).display=="none",fh.textContent+" | "+fs.textContent);
