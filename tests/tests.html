@@ -195,6 +195,8 @@ try{var L0=w.SH_LORO;check("Loro has lots of different cheers",L0.cheer.length>=
 var allL=L0.cheer.concat(L0.oops).join(" ");var allW=L0.cheer.concat(L0.oops,L0.done,L0.streak.map(function(f){return f(5)})).join(" ");check("Loro only uses Spanish students already know (no slang)",!/crack|seguidas|racha|así se hace|ánimo|sigue así|qué bien|eres genial/i.test(allW),allW);
 check("Cheers mix English and Spanish",/¡/.test(allL)&&/ you/i.test(allL));
 check("Loro counts one assignment",/1/.test(w.SH_loroAsg(1))&&/assignment|tarea/i.test(w.SH_loroAsg(1)));
+check("Every one-assignment line shows the number 1",L0.asg1.every(function(t){return /1/.test(t)&&/assignment|tarea/i.test(t)}),L0.asg1.join(" | "));
+check("Every several-assignments line shows the count",L0.asgN.every(function(f){return /7/.test(f(7))&&/assignments|tareas/i.test(f(7))}));
 check("Loro counts several assignments",/3/.test(w.SH_loroAsg(3))&&/assignments|tareas/i.test(w.SH_loroAsg(3)));
 check("Loro says when you're all caught up",/caught up/i.test(w.SH_loroAsg(0)));
 var ls=w.SH_loroSay("¡Hola <b>!");check("Loro's bubble shows the parrot logo and safe text",/<svg/.test(ls)&&/&lt;b&gt;/.test(ls)&&!/<b>!/.test(ls));
