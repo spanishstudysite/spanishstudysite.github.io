@@ -424,6 +424,10 @@ check("The class picker is right there on the tab",!!d.querySelector('.tp-pane[d
 check("No separate page with a back button",!d.getElementById("twback")&&!d.getElementById("twopen"));
 var gt=d.querySelector('.tp-tab[data-t="gb"]');if(gt)gt.click();check("Switching back to another tab hides Weak spots",!!pn&&pn.hidden);
 w._tTab="as"}catch(e){check("Weak spots tab checks ran",false,e.message)}fin()},400)}catch(e){check("Weak spots tab checks ran",false,e.message);fin()}});})}
+suite("Site checks aren't interrupted by a library update");
+try{var rk=w.document.createElement("div");rk.id="chk";w.document.body.appendChild(rk);w.SH_pendReload=0;
+check("While the checks page is open, a library update waits instead of reloading",typeof w.SH_rld=="function"&&w.SH_rld()===false&&w.SH_pendReload===1);
+rk.remove();w.SH_pendReload=0}catch(e){check("Library update check ran",false,e.message)}
 suite("Screens open without errors");
 var n0=w.__errs.length;try{w.view("hub");check("Library shows units",w.document.querySelectorAll("#sets [data-u]").length>0,"no unit cards");
 var c=w.document.querySelector("#sets [data-u]");c.click();check("A unit opens",!w.document.getElementById("unit").hidden);
