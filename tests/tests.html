@@ -428,6 +428,8 @@ suite("Site checks aren't interrupted by a library update");
 try{var rk=w.document.createElement("div");rk.id="chk";w.document.body.appendChild(rk);w.SH_pendReload=0;
 check("While the checks page is open, a library update waits instead of reloading",typeof w.SH_rld=="function"&&w.SH_rld()===false&&w.SH_pendReload===1);
 rk.remove();w.SH_pendReload=0}catch(e){check("Library update check ran",false,e.message)}
+suite("No Unlock editing button");
+try{if(w.SH_setST){w.SH_setST({n:"testteach",p:"x",t:1});if(w.SH_menuUI)w.SH_menuUI();w.document.getElementById("gear").click();var ab=w.document.getElementById("adm");check("Teachers don't see an Unlock editing button in the menu (editing unlocks on its own)",!!ab&&ab.hidden&&(!ab.previousElementSibling||ab.previousElementSibling.hidden));w.document.getElementById("menu").hidden=true;w.SH_setST(null);if(w.SH_menuUI)w.SH_menuUI()}else check("Can set a teacher for the menu check",false)}catch(e){check("Menu check ran",false,e.message)}
 suite("Screens open without errors");
 var n0=w.__errs.length;try{w.view("hub");check("Library shows units",w.document.querySelectorAll("#sets [data-u]").length>0,"no unit cards");
 var c=w.document.querySelector("#sets [data-u]");c.click();check("A unit opens",!w.document.getElementById("unit").hidden);
