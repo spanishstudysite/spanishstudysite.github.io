@@ -114,7 +114,8 @@ if(THM){var names=Object.keys(THM);check("There is a Default theme plus at least
 names.forEach(function(n){check("“"+n+"” has a plain-text name (no emoji)",!/[\u{1F300}-\u{1FAFF}☀-➿]/u.test(n));if(THM[n])check("“"+n+"” sets every color",KS.every(function(k){return!!THM[n][k]}),KS.filter(function(k){return!THM[n][k]}).join(", "))});
 try{var r0=w.document.documentElement.style;w.theme(names[1]);check("Picking a theme changes the colors",r0.getPropertyValue("--btn")===THM[names[1]].btn);w.theme("Default");check("Default goes back to the default colors",!r0.getPropertyValue("--btn"));if(THM.Butter){w.theme("Butter");check("Light themes can use dark button text so buttons stay readable (Butter)",r0.getPropertyValue("--btxt")===THM.Butter.btxt);w.theme("Sage");check("Switching away from Butter resets the button text color",!r0.getPropertyValue("--btxt"));w.theme("Default")}
 check("The theme menu shows every theme",w.document.querySelectorAll("#themes .chip").length===names.length)}catch(e){check("Switching themes works",false,e.message)}
-var cs0=w.getComputedStyle(w.document.documentElement);check("Default is the Ocean Slate look (slate-blue button, light gray-blue background)",/#3f78b5/i.test(cs0.getPropertyValue("--btn"))&&/#f3f6f9/i.test(cs0.getPropertyValue("--bg")),cs0.getPropertyValue("--btn")+" / "+cs0.getPropertyValue("--bg"));
+var cs0=w.getComputedStyle(w.document.documentElement);var dk0=!!(w.matchMedia&&w.matchMedia("(prefers-color-scheme: dark)").matches);
+check("Default is the Ocean Slate look (slate-blue button, "+(dk0?"dark navy background in dark mode":"light gray-blue background")+")",/#3f78b5/i.test(cs0.getPropertyValue("--btn"))&&(dk0?/#121821/i:/#f3f6f9/i).test(cs0.getPropertyValue("--bg")),cs0.getPropertyValue("--btn")+" / "+cs0.getPropertyValue("--bg"));
 check("Classic (old pink and purple) was removed",!THM.Classic);
 check("Calm Blue was removed",!THM["Calm Blue"]);
 w.localStorage.setItem("pth","Auto");check("Someone who had the old Auto saved lands on Default",THM.Auto===undefined);
@@ -340,6 +341,24 @@ tq("sd").value="uno - one\ndos - two\ntres - three";tq("sd").oninput();eq("Paste
 tq("emT").click();eq("Switching back turns the pasted list into rows",tr().filter(function(r){return r.querySelector(".et").value}).map(function(r){return r.querySelector(".et").value}),["uno","dos","tres"]);
 tq("ss").click();eq("Saving an edit replaces the terms",qs.items,[["uno","one"],["dos","two"],["tres","three"]]);
 w.CS.splice(w.CS.indexOf(qs),1);w.saveS();w.cs=null;w.view("hub")}catch(e){check("Making a terms set works",false,e.message)}
+suite("Saving a set catches repeated terms and flipped rows");
+try{var VT=w.SH_vet,HL=[["las Posadas","Xmas party (México)"],["yo me divierto","I have fun"],["yo lo paso bien","I have a good time"],["the boy","el niño"],["yo me divierto","I enjoy myself"],["yo lo paso bien","I have a good time"]],hv=VT(HL);
+eq("Finds both repeated terms",hv.dup,[[1,4],[2,5]]);eq("Finds the row with the Spanish in the definition",hv.flip,[3]);
+check("A Spanish name with a place in brackets isn't called flipped (las Posadas / Xmas party (México))",!w.SH_flip("las Posadas","Xmas party (México)"));
+check("“the house” / “la casa” is caught as flipped",w.SH_flip("the house","la casa"));check("“el gato” / “the cat” is fine",!w.SH_flip("el gato","the cat"));
+eq("Fix for me joins repeats (keeping both answers) and swaps flipped rows",hv.fixed,[["las Posadas","Xmas party (México)"],["yo me divierto","I have fun, I enjoy myself"],["yo lo paso bien","I have a good time"],["el niño","the boy"]]);
+check("The library scan no longer flags las Posadas",!w.SH_lint([{name:"h",items:[["las Posadas","Xmas party (México)"],["el gato","the cat"]]}]).length);
+var tq2=function(id){return w.document.getElementById(id)},tr2=function(){return[].slice.call(w.document.querySelectorAll("#erows .er"))},n2=w.CS.length;
+w.cs=null;w.view("cset");w.editor();w.SH_edFill([["la casa","the house"],["comer","to eat"],["the dog","el perro"],["la casa","home"]]);tq2("sn").value="zz-vet";tq2("ss").click();
+check("Pressing Save with problems doesn't save yet",w.CS.length===n2);
+check("It says which rows are repeated or flipped",/Row 4 repeats .la casa. from row 1/.test(tq2("se").textContent)&&/Row 3 looks flipped/.test(tq2("se").textContent),tq2("se").textContent);
+check("The problem rows turn red",/erbad/.test(tr2()[2].className)&&/erbad/.test(tr2()[3].className)&&!/erbad/.test(tr2()[0].className));
+tq2("efix").click();eq("Fix for me cleans up the rows",tr2().filter(function(r){return r.querySelector(".et").value}).map(function(r){return[r.querySelector(".et").value,r.querySelector(".ed").value]}),[["la casa","the house, home"],["comer","to eat"],["el perro","the dog"]]);
+tq2("ss").click();check("After fixing, Save saves right away",w.CS.length===n2+1);var zs=w.CS[w.CS.length-1];eq("The saved set is the clean one",zs.items,[["la casa","the house, home"],["comer","to eat"],["el perro","the dog"]]);
+w.cs=zs;w.view("cset");w.editor();tq2("emP").click();tq2("sd").value="uno - one\nuno - one";tq2("emT").click();tq2("ss").click();check("Save anyway still lets a teacher keep it as is",!!tq2("eany")&&zs.items.length===3);tq2("eany").click();eq("…and saves exactly what they typed",zs.items,[["uno","one"],["uno","one"]]);
+w.cs=zs;w.view("cset");w.editor();tq2("emP").click();tq2("sd").value="dos - two\ndos - two\ntres - three";tq2("ss").click();check("Paste a list gets the same check",/Line 2 repeats/.test(tq2("se").textContent),tq2("se").textContent);
+tq2("efix").click();check("Fix for me works on a pasted list too",tq2("sd").value==="dos - two\ntres - three",tq2("sd").value);
+w.CS.splice(w.CS.indexOf(zs),1);w.saveS();w.cs=null;w.view("hub")}catch(e){check("Checking a set before saving works",false,e.message)}
 suite("Practice and new-set screens are tidy");
 try{w.cs=null;w.createMenu();w.document.getElementById("k1").click();var cmE=w.document.getElementById("cm"),mpE=w.document.getElementById("mpick");
 eq("A new terms set doesn't keep saying \u201cWhat kind of set?\u201d",w.document.getElementById("sb").textContent,"");
