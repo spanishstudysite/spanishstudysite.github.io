@@ -444,6 +444,13 @@ check("'cansada' counts for 'cansado/a'",A("cansada","cansado/a"));
 check("'a' alone does not count for 'cansado/a'",!A("a","cansado/a"));
 check("'el' alone does not count for 'el/la estudiante'",!A("el","el/la estudiante"));
 check("A wrong answer is still wrong",!A("cake","sweets/candies"));
+check("'sweets' counts for 'sweets, candies'",A("sweets","sweets, candies"));
+check("'three kings day' counts for 'Three Kings Day, January 6'",A("three kings day","Three Kings Day, January 6"));
+check("One wrong letter counts in practice ('three kinds day')",A("three kinds day","Three Kings Day (January 6)",1));
+check("Two wrong letters are still wrong",!A("three kinds dat","Three Kings Day",1));
+check("Short words still need exact spelling",!A("cat","car",1));
+check("A missing accent is still wrong unless accents are ignored",!A("corazon","corazón",1));
+check("Verb forms stay exact (no typo pass)",!A("comieran","comieron"));
 check("A blank answer is wrong",!A("  ","sweets/candies"))}}catch(e){check("Answer checks ran",false,e.message)}
 suite("Screens open without errors");
 var n0=w.__errs.length;try{w.view("hub");check("Library shows units",w.document.querySelectorAll("#sets [data-u]").length>0,"no unit cards");
