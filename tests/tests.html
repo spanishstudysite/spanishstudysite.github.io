@@ -471,6 +471,13 @@ check("Short words still need exact spelling",!A("cat","car",1));
 check("A missing accent is still wrong unless accents are ignored",!A("corazon","corazón",1));
 check("Verb forms stay exact (no typo pass)",!A("comieran","comieron"));
 check("A blank answer is wrong",!A("  ","sweets/candies"))}}catch(e){check("Answer checks ran",false,e.message)}
+suite("Set editor shows row numbers and repeats");
+try{w.cs={name:"Dup test",items:[["la casa","the house"],["yo me divierto","I have fun"],["el perro","the dog"],["Yo me divierto","I have fun"]]};w.view("cset");w.editor();var er=w.document.querySelectorAll("#erows .er");
+check("Rows are numbered",w.getComputedStyle(er[0],"::before").content=="counter(er)",w.getComputedStyle(er[0],"::before").content);
+check("The second copy of a term is outlined",er[3].classList.contains("dup")&&!er[1].classList.contains("dup"));
+check("It says which row it repeats",er[3].title=="Same term as row 2",er[3].title);
+check("The count line mentions the repeat",/1 repeated term/.test(w.document.getElementById("ecnt").textContent),w.document.getElementById("ecnt").textContent);
+var x=er[3].querySelector(".ex");x.click();check("Removing the repeat clears the warning",!/repeated/.test(w.document.getElementById("ecnt").textContent));w.cs=null;w.view("hub")}catch(e){check("Editor repeat check ran",false,e.message)}
 suite("Screens open without errors");
 var n0=w.__errs.length;try{w.view("hub");check("Library shows units",w.document.querySelectorAll("#sets [data-u]").length>0,"no unit cards");
 var c=w.document.querySelector("#sets [data-u]");c.click();check("A unit opens",!w.document.getElementById("unit").hidden);
