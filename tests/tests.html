@@ -433,6 +433,16 @@ eq("The new-set button just says \u201c+ New set\u201d",w.document.getElementByI
 if(w.SH_setST){w.SH_setST({n:"testteach",p:"x",t:1});w.view("hub");try{w.hubR()}catch(x){}var thc=w.document.querySelector(".th-card");check("The teacher home card has no \u201cTeacher workspace\u201d label or filler descriptions",!!thc&&!/Teacher workspace/.test(thc.textContent)&&!thc.querySelector("small")&&/Answer key/.test(thc.textContent),thc?thc.textContent:"no card");w.SH_setST(null);w.view("hub");try{w.hubR()}catch(x){}}
 w.view("pret");check("Instructions that help still show (Pret\u00e9rito drill)",/preterite/.test(fs.textContent));
 w.cs=null;w.view("hub")}catch(e){check("Headings check ran",false,e.message)}
+function netRun(){suite("Slow internet doesn't break buttons");var nS=cur,of=w.fetch,ou=w.SB_unlock;
+var fin=function(){w.fetch=of;w.SB_unlock=ou;try{w.SH_setST(null);if(w.ovx)w.ovx();var o=w.document.getElementById("ov");if(o)o.hidden=true}catch(x){}};
+try{if(!w.SH_rp||!w.SH_ulFail){check("Network hooks exist",false,"needs SH_rp and SH_ulFail");fin();return Promise.resolve()}
+w.SH_ulFail("net");var ov=w.document.getElementById("ov"),tx=ov?ov.textContent:"";check("A dropped connection says so plainly, without mentioning Unlock editing",/Couldn’t reach Loro/.test(tx)&&!/nlock/.test(tx),tx);if(w.ovx)w.ovx();
+var calls=0;w.fetch=function(){calls++;if(calls<3)return Promise.reject(new TypeError("Failed to fetch"));return Promise.resolve(new w.Response('{"ok":1}',{status:200}))};
+return w.SH_rp("zz_test",{}).then(function(j){cur=nS;check("A request that fails twice is retried and then works",calls===3&&j&&j.ok===1,"tries: "+calls);
+check("The loading bar turns off when it's done",w.SH_rpN()===0&&!/on/.test((w.document.getElementById("netbar")||{}).className||""));
+var c2=0;w.fetch=function(){c2++;return Promise.resolve(new w.Response('{"message":"bad login"}',{status:400}))};
+return w.SH_rp("zz_test",{}).then(function(){cur=nS;check("A real error isn't retried",false)},function(e){cur=nS;check("A real error isn't retried",c2===1&&e.message=="bad login","tries: "+c2)})}).then(function(){
+var u=0;w.SB_unlock=function(){u++;return Promise.resolve(u<2?"net":true)};w.SH_setST({n:"testteach",p:"x",t:1});return w.SH_TU().then(function(r){cur=nS;check("Teacher editing tries again by itself when the internet blips",r===true&&u===2,"tries: "+u)})}).then(fin,function(e){cur=nS;check("Network checks ran",false,String(e));fin()})}catch(e){check("Network checks ran",false,e.message);fin();return Promise.resolve()}}
 function syncRun(){suite("Phone and computer libraries stay in sync");var sS=cur,of=w.fetch,ls=w.localStorage;
 var fin=function(){w.fetch=of;try{["pdirty","plib","plibid"].forEach(function(k){ls.removeItem(k)});w.SH_setST(null);w.view("hub")}catch(x){}};
 try{if(!w.SH_idle||!w.SH_sync){check("Sync hooks exist",false,"needs SH_idle and SH_sync");fin();return Promise.resolve()}
@@ -502,7 +512,7 @@ w.view("hub")}catch(e){check("Navigation threw an error",false,e.message)}
 check("No errors while clicking around",w.__errs.length===n0,w.__errs.slice(n0).join(" | "));
 ICW.then(function(x){cur=icS;if(x.err)check("App manifest can be read",false,x.err);else{check("Manifest names the app Loro",x.m.name=="Loro"&&x.m.short_name=="Loro",x.m.name);
 check("Manifest lists 192px and 512px icons",x.src.indexOf("192x192")>=0&&x.src.indexOf("512x512")>=0,x.src.join(", "));
-x.sz.forEach(function(r){check(r[0]+" loads at the right size",r[1]==({"apple-touch-icon.png":180,"icon-192.png":192,"icon-512.png":512})[r[0]],r[1]?r[1]+"px":"missing")})}return wkRun()}).then(syncRun).then(draw)}
+x.sz.forEach(function(r){check(r[0]+" loads at the right size",r[1]==({"apple-touch-icon.png":180,"icon-192.png":192,"icon-512.png":512})[r[0]],r[1]?r[1]+"px":"missing")})}return wkRun()}).then(syncRun).then(netRun).then(draw)}
 function go(){document.getElementById("st").textContent="Running…";document.getElementById("st").className="big";document.getElementById("out").innerHTML="";[].forEach.call(document.querySelectorAll("iframe"),function(f){f.remove()});
 load().then(run).catch(function(e){R=[];suite("Setup");check("Test page could start",false,e.message);draw()})}
 document.getElementById("re").onclick=go;go();
