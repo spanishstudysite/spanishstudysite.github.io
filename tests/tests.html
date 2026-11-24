@@ -504,6 +504,14 @@ check("The second copy of a term is outlined",er[3].classList.contains("dup")&&!
 check("It says which row it repeats",er[3].title=="Same term as row 2",er[3].title);
 check("The count line mentions the repeat",/1 repeated term/.test(w.document.getElementById("ecnt").textContent),w.document.getElementById("ecnt").textContent);
 var x=er[3].querySelector(".ex");x.click();check("Removing the repeat clears the warning",!/repeated/.test(w.document.getElementById("ecnt").textContent));w.cs=null;w.view("hub")}catch(e){check("Editor repeat check ran",false,e.message)}
+suite("Built-in sets stay out of new teachers' libraries");
+try{if(!w.SH_noBI)check("Built-in lock hook exists",false);else{var hid0=w.hid.slice(),un0=w.UN.slice(),ph0=w.localStorage.getItem("phide"),pu0=w.localStorage.getItem("punits"),ap0=w.askPin;w.askPin=function(cb){cb()};
+var put=function(h,u){w.hid.length=0;h.forEach(function(x){w.hid.push(x)});w.UN.length=0;u.forEach(function(x){w.UN.push(x)})};
+check("Your library (built-ins showing) isn't locked",!w.SH_noBI());
+put(["pret","nva"],[]);check("A new teacher's library (built-ins hidden, no starter units) is locked",w.SH_noBI());
+w.document.getElementById("rst").click();check("Restore hidden sets doesn't bring built-ins back for a new teacher",w.hid.indexOf("pret")>-1&&w.hid.indexOf("nva")>-1,JSON.stringify(w.hid));
+put(["pret"],["Preterite irregular"]);w.document.getElementById("rst").click();check("Your library can still restore built-ins",w.hid.indexOf("pret")<0,JSON.stringify(w.hid));
+w.askPin=ap0;put(hid0,un0);if(ph0==null)w.localStorage.removeItem("phide");else w.localStorage.setItem("phide",ph0);if(pu0==null)w.localStorage.removeItem("punits");else w.localStorage.setItem("punits",pu0);w.view("hub");w.hubR()}}catch(e){check("Built-in lock checks ran",false,e.message)}
 suite("Screens open without errors");
 var n0=w.__errs.length;try{w.view("hub");check("Library shows units",w.document.querySelectorAll("#sets [data-u]").length>0,"no unit cards");
 var c=w.document.querySelector("#sets [data-u]");c.click();check("A unit opens",!w.document.getElementById("unit").hidden);
