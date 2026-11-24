@@ -351,13 +351,19 @@ check("The library scan no longer flags las Posadas",!w.SH_lint([{name:"h",items
 var tq2=function(id){return w.document.getElementById(id)},tr2=function(){return[].slice.call(w.document.querySelectorAll("#erows .er"))},n2=w.CS.length;
 w.cs=null;w.view("cset");w.editor();w.SH_edFill([["la casa","the house"],["comer","to eat"],["the dog","el perro"],["la casa","home"]]);tq2("sn").value="zz-vet";tq2("ss").click();
 check("Pressing Save with problems doesn't save yet",w.CS.length===n2);
-check("It says which rows are repeated or flipped",/Row 4 repeats .la casa. from row 1/.test(tq2("se").textContent)&&/Row 3 looks flipped/.test(tq2("se").textContent),tq2("se").textContent);
-check("The problem rows turn red",/erbad/.test(tr2()[2].className)&&/erbad/.test(tr2()[3].className)&&!/erbad/.test(tr2()[0].className));
+var ov2=function(){var o=tq2("ov");return o&&!o.hidden?o:null};
+check("A pop-up lists the repeated term and its rows",!!ov2()&&/la casa/.test(ov2().textContent)&&/rows 1 and 4/.test(ov2().textContent),ov2()?ov2().textContent:"no pop-up");
+check("The pop-up offers Remove copy and Keep both",!!ov2()&&!!ov2().querySelector("[data-dr]")&&!!ov2().querySelector("[data-dk]"));
+tq2("dpgo").click();check("Removing the copy keeps its answer on the first row",tr2()[0].querySelector(".ed").value=="the house, home"&&tr2().filter(function(r){return r.querySelector(".et").value=="la casa"}).length==1,tr2()[0].querySelector(".ed").value);
+check("Then it says which row looks flipped",/Row 3 looks flipped/.test(tq2("se").textContent),tq2("se").textContent);
+check("The flipped row turns red",/erbad/.test(tr2()[2].className)&&!/erbad/.test(tr2()[0].className));
 tq2("efix").click();eq("Fix for me cleans up the rows",tr2().filter(function(r){return r.querySelector(".et").value}).map(function(r){return[r.querySelector(".et").value,r.querySelector(".ed").value]}),[["la casa","the house, home"],["comer","to eat"],["el perro","the dog"]]);
 tq2("ss").click();check("After fixing, Save saves right away",w.CS.length===n2+1);var zs=w.CS[w.CS.length-1];eq("The saved set is the clean one",zs.items,[["la casa","the house, home"],["comer","to eat"],["el perro","the dog"]]);
-w.cs=zs;w.view("cset");w.editor();tq2("emP").click();tq2("sd").value="uno - one\nuno - one";tq2("emT").click();tq2("ss").click();check("Save anyway still lets a teacher keep it as is",!!tq2("eany")&&zs.items.length===3);tq2("eany").click();eq("…and saves exactly what they typed",zs.items,[["uno","one"],["uno","one"]]);
-w.cs=zs;w.view("cset");w.editor();tq2("emP").click();tq2("sd").value="dos - two\ndos - two\ntres - three";tq2("ss").click();check("Paste a list gets the same check",/Line 2 repeats/.test(tq2("se").textContent),tq2("se").textContent);
-tq2("efix").click();check("Fix for me works on a pasted list too",tq2("sd").value==="dos - two\ntres - three",tq2("sd").value);
+w.cs=zs;w.view("cset");w.editor();tq2("emP").click();tq2("sd").value="uno - one\nuno - one\ndos - two";tq2("emT").click();tq2("ss").click();check("Keep both is offered for a repeat",!!ov2()&&!!ov2().querySelector("[data-dk]")&&zs.items.length===3);ov2().querySelector("[data-dk]").click();tq2("dpgo").click();eq("…and Keep both saves exactly what they typed",zs.items,[["uno","one"],["uno","one"],["dos","two"]]);
+w.cs=null;w.view("cset");w.editor();w.SH_edFill([["uno","one"],["dos","two"],["uno","one"]]);tq2("sn").value="zz-vet2";var n3=w.CS.length;tq2("ss").click();tq2("dpx").click();check("Go back closes the pop-up without saving",!ov2()&&w.CS.length===n3);
+tq2("ss").click();tq2("dpgo").click();check("Remove copy then saves the set without the repeat",w.CS.length===n3+1&&w.CS[n3].items.length===2,JSON.stringify(w.CS[n3]&&w.CS[n3].items));w.CS.splice(n3,1);
+w.cs=zs;w.view("cset");w.editor();tq2("emP").click();tq2("sd").value="dos - two\ndos - two\ntres - three";var nz=zs.items.length;tq2("ss").click();check("Paste a list gets the same pop-up",!!ov2()&&/lines 1 and 2/.test(ov2().textContent),ov2()?ov2().textContent:"no pop-up");
+tq2("dpgo").click();eq("Remove copy works on a pasted list too",zs.items,[["dos","two"],["tres","three"]]);
 w.CS.splice(w.CS.indexOf(zs),1);w.saveS();w.cs=null;w.view("hub")}catch(e){check("Checking a set before saving works",false,e.message)}
 suite("Practice and new-set screens are tidy");
 try{w.cs=null;w.createMenu();w.document.getElementById("k1").click();var cmE=w.document.getElementById("cm"),mpE=w.document.getElementById("mpick");
@@ -471,6 +477,13 @@ check("Short words still need exact spelling",!A("cat","car",1));
 check("A missing accent is still wrong unless accents are ignored",!A("corazon","corazón",1));
 check("Verb forms stay exact (no typo pass)",!A("comieran","comieron"));
 check("A blank answer is wrong",!A("  ","sweets/candies"))}}catch(e){check("Answer checks ran",false,e.message)}
+suite("Set editor shows row numbers and repeats");
+try{w.cs={name:"Dup test",items:[["la casa","the house"],["yo me divierto","I have fun"],["el perro","the dog"],["Yo me divierto","I have fun"]]};w.view("cset");w.editor();var er=w.document.querySelectorAll("#erows .er");
+check("Rows are numbered",w.getComputedStyle(er[0],"::before").content=="counter(er)",w.getComputedStyle(er[0],"::before").content);
+check("The second copy of a term is outlined",er[3].classList.contains("dup")&&!er[1].classList.contains("dup"));
+check("It says which row it repeats",er[3].title=="Same term as row 2",er[3].title);
+check("The count line mentions the repeat",/1 repeated term/.test(w.document.getElementById("ecnt").textContent),w.document.getElementById("ecnt").textContent);
+var x=er[3].querySelector(".ex");x.click();check("Removing the repeat clears the warning",!/repeated/.test(w.document.getElementById("ecnt").textContent));w.cs=null;w.view("hub")}catch(e){check("Editor repeat check ran",false,e.message)}
 suite("Screens open without errors");
 var n0=w.__errs.length;try{w.view("hub");check("Library shows units",w.document.querySelectorAll("#sets [data-u]").length>0,"no unit cards");
 var c=w.document.querySelector("#sets [data-u]");c.click();check("A unit opens",!w.document.getElementById("unit").hidden);
